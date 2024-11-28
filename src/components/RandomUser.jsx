@@ -27,13 +27,25 @@ const RandomUser = () => {
         throw new Error('Failed to fetch user data');
       }
       const data = await response.json();
-      setUser(data.results[0]);
+      const fetchedUser = data.results[0];
+
+      // Replace specific email domains
+      fetchedUser.email = replaceEmailDomain(fetchedUser.email);
+
+      setUser(fetchedUser);
       setCopied(null); // Reset copied state when fetching new user
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
+  };
+
+  // Helper function to replace specific email domains
+  const replaceEmailDomain = (email) => {
+    const domainsToReplace = ['gmail.com', 'yahoo.com', 'aol.com', 'mail.com', 'msn.com'];
+    const [localPart, domain] = email.split('@');
+    return domainsToReplace.includes(domain) ? `${localPart}@example.com` : email;
   };
 
   useEffect(() => {
