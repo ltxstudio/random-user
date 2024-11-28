@@ -17,7 +17,7 @@ const RandomUser = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [copied, setCopied] = useState(null); // State to track copied item
+  const [copied, setCopied] = useState(null);
 
   const fetchRandomUser = async () => {
     try {
@@ -28,12 +28,9 @@ const RandomUser = () => {
       }
       const data = await response.json();
       const fetchedUser = data.results[0];
-
-      // Replace specific email domains
       fetchedUser.email = replaceEmailDomain(fetchedUser.email);
-
       setUser(fetchedUser);
-      setCopied(null); // Reset copied state when fetching new user
+      setCopied(null);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -41,7 +38,6 @@ const RandomUser = () => {
     }
   };
 
-  // Helper function to replace specific email domains
   const replaceEmailDomain = (email) => {
     const domainsToReplace = ['gmail.com', 'yahoo.com', 'aol.com', 'mail.com', 'msn.com'];
     const [localPart, domain] = email.split('@');
@@ -54,18 +50,29 @@ const RandomUser = () => {
 
   const handleCopy = (field) => {
     setCopied(field);
-    setTimeout(() => setCopied(null), 2000); // Reset copy state after 2 seconds
+    setTimeout(() => setCopied(null), 2000);
   };
 
-  if (loading)
-    return <p className="text-center text-xl mt-10 animate-pulse">Loading...</p>;
-  if (error)
-    return <p className="text-center text-red-500 mt-10">Error: {error}</p>;
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-20 w-20 border-t-4 border-blue-500 border-opacity-75"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p className="bg-red-100 text-red-600 p-4 rounded-lg shadow-md">{error}</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="flex flex-col items-center mt-10">
+    <div className="flex flex-col items-center bg-gradient-to-r from-blue-100 via-blue-200 to-blue-300 min-h-screen py-10">
       <motion.div
-        className="bg-white shadow-xl rounded-lg p-6 w-11/12 sm:w-3/4 md:w-1/2 lg:w-1/3"
+        className="bg-white shadow-2xl rounded-lg p-8 w-11/12 sm:w-3/4 md:w-1/2 lg:w-1/3 transform hover:scale-105 transition-transform"
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
@@ -74,15 +81,15 @@ const RandomUser = () => {
           <img
             src={user.picture.large}
             alt={`${user.name.first}'s avatar`}
-            className="rounded-full w-32 h-32 border-4 border-blue-500 shadow-lg"
+            className="rounded-full w-32 h-32 border-4 border-gradient-to-r from-blue-400 to-purple-400 shadow-lg"
           />
-          <h3 className="text-2xl font-semibold mt-4 text-blue-700">
+          <h3 className="text-3xl font-semibold mt-4 text-blue-700">
             {user.name.title} {user.name.first} {user.name.last}
           </h3>
-          <p className="text-gray-600 text-sm">{user.gender.toUpperCase()}</p>
+          <p className="text-gray-500 text-sm mt-1">{user.gender.toUpperCase()}</p>
         </div>
 
-        <div className="mt-6 space-y-4">
+        <div className="mt-8 space-y-6">
           {[
             { label: 'Email', value: user.email, icon: <FaEnvelope className="text-blue-500 mr-3" /> },
             { label: 'Phone', value: user.phone, icon: <FaPhone className="text-green-500 mr-3" /> },
@@ -107,7 +114,7 @@ const RandomUser = () => {
             <div key={index} className="flex items-center justify-between">
               <div className="flex items-center">
                 {detail.icon}
-                <p className="text-gray-800">{detail.value}</p>
+                <p className="text-gray-700">{detail.value}</p>
               </div>
               <CopyToClipboard text={detail.value} onCopy={() => handleCopy(detail.label)}>
                 <button
@@ -125,7 +132,7 @@ const RandomUser = () => {
 
         <button
           onClick={fetchRandomUser}
-          className="mt-6 w-full bg-blue-500 text-white py-3 px-6 rounded-lg shadow hover:bg-blue-600 transition-all duration-300"
+          className="mt-6 w-full bg-gradient-to-r from-blue-500 to-purple-500 text-white py-3 px-6 rounded-lg shadow hover:opacity-90 transition-all duration-300"
         >
           Get Another User
         </button>
