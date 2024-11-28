@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { FaRedoAlt, FaClipboard } from "react-icons/fa";
 import { motion } from "framer-motion";
-import faker from "faker";
+import { faker } from '@faker-js/faker'; // Updated import
 import Switch from "react-switch";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 
