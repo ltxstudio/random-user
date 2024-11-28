@@ -8,12 +8,16 @@ import {
   FaUser,
   FaIdCard,
   FaGlobe,
+  FaCopy,
+  FaCheck,
 } from 'react-icons/fa';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
 
 const RandomUser = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [copied, setCopied] = useState(null); // State to track copied item
 
   const fetchRandomUser = async () => {
     try {
@@ -24,6 +28,7 @@ const RandomUser = () => {
       }
       const data = await response.json();
       setUser(data.results[0]);
+      setCopied(null); // Reset copied state when fetching new user
     } catch (err) {
       setError(err.message);
     } finally {
@@ -34,6 +39,11 @@ const RandomUser = () => {
   useEffect(() => {
     fetchRandomUser();
   }, []);
+
+  const handleCopy = (field) => {
+    setCopied(field);
+    setTimeout(() => setCopied(null), 2000); // Reset copy state after 2 seconds
+  };
 
   if (loading)
     return <p className="text-center text-xl mt-10 animate-pulse">Loading...</p>;
@@ -61,56 +71,44 @@ const RandomUser = () => {
         </div>
 
         <div className="mt-6 space-y-4">
-          {/* Email */}
-          <div className="flex items-center">
-            <FaEnvelope className="text-blue-500 mr-3" />
-            <p className="text-gray-800">{user.email}</p>
-          </div>
-
-          {/* Phone */}
-          <div className="flex items-center">
-            <FaPhone className="text-green-500 mr-3" />
-            <p className="text-gray-800">{user.phone}</p>
-          </div>
-
-          {/* Location */}
-          <div className="flex items-center">
-            <FaMapMarkerAlt className="text-red-500 mr-3" />
-            <p className="text-gray-800">
-              {user.location.street.number} {user.location.street.name},{' '}
-              {user.location.city}, {user.location.state},{' '}
-              {user.location.country} ({user.location.postcode})
-            </p>
-          </div>
-
-          {/* Date of Birth */}
-          <div className="flex items-center">
-            <FaBirthdayCake className="text-yellow-500 mr-3" />
-            <p className="text-gray-800">
-              {new Date(user.dob.date).toLocaleDateString()} ({user.dob.age}{' '}
-              years old)
-            </p>
-          </div>
-
-          {/* Nationality */}
-          <div className="flex items-center">
-            <FaGlobe className="text-purple-500 mr-3" />
-            <p className="text-gray-800">{user.nat}</p>
-          </div>
-
-          {/* Username */}
-          <div className="flex items-center">
-            <FaUser className="text-cyan-500 mr-3" />
-            <p className="text-gray-800">{user.login.username}</p>
-          </div>
-
-          {/* ID */}
-          <div className="flex items-center">
-            <FaIdCard className="text-gray-500 mr-3" />
-            <p className="text-gray-800">
-              {user.id.name || 'N/A'}: {user.id.value || 'N/A'}
-            </p>
-          </div>
+          {[
+            { label: 'Email', value: user.email, icon: <FaEnvelope className="text-blue-500 mr-3" /> },
+            { label: 'Phone', value: user.phone, icon: <FaPhone className="text-green-500 mr-3" /> },
+            {
+              label: 'Location',
+              value: `${user.location.street.number} ${user.location.street.name}, ${user.location.city}, ${user.location.state}, ${user.location.country} (${user.location.postcode})`,
+              icon: <FaMapMarkerAlt className="text-red-500 mr-3" />,
+            },
+            {
+              label: 'DOB',
+              value: `${new Date(user.dob.date).toLocaleDateString()} (${user.dob.age} years old)`,
+              icon: <FaBirthdayCake className="text-yellow-500 mr-3" />,
+            },
+            { label: 'Nationality', value: user.nat, icon: <FaGlobe className="text-purple-500 mr-3" /> },
+            { label: 'Username', value: user.login.username, icon: <FaUser className="text-cyan-500 mr-3" /> },
+            {
+              label: 'ID',
+              value: `${user.id.name || 'N/A'}: ${user.id.value || 'N/A'}`,
+              icon: <FaIdCard className="text-gray-500 mr-3" />,
+            },
+          ].map((detail, index) => (
+            <div key={index} className="flex items-center justify-between">
+              <div className="flex items-center">
+                {detail.icon}
+                <p className="text-gray-800">{detail.value}</p>
+              </div>
+              <CopyToClipboard text={detail.value} onCopy={() => handleCopy(detail.label)}>
+                <button
+                  className={`flex items-center text-sm px-3 py-1 rounded ${
+                    copied === detail.label ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+                  } transition-all`}
+                >
+                  {copied === detail.label ? <FaCheck className="mr-2" /> : <FaCopy className="mr-2" />}
+                  {copied === detail.label ? 'Copied' : 'Copy'}
+                </button>
+              </CopyToClipboard>
+            </div>
+          ))}
         </div>
 
         <button
